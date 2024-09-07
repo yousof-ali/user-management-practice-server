@@ -36,7 +36,49 @@ async function run() {
         const result = await userCollections.insertOne(user);
         res.send(result);
     })
+    
+    app.get('/users',async(req,res) => {
+      const users = userCollections.find();
+      const convert = await users.toArray();
+      res.send(convert);
+    })
 
+    app.get('/user/:id',async(req,res) => {
+         const id = req.params.id
+         const query = {_id : new ObjectId(id)}
+         console.log(id);
+         const singleUser = await userCollections.findOne(query);
+         res.send(singleUser);
+    })
+
+    app.put('/edit/:id',async(req,res) => {
+      const id = req.params.id
+      const query = {_id : new ObjectId(id)}
+      const option = {upsert:true}
+      const updateContent = req.body
+      console.log(updateContent);
+
+      const edit = {
+        $set:{
+          name:updateContent.name,
+          email:updateContent.email,
+          gender:updateContent.gender,
+          status:updateContent.status
+        }
+      }
+      const result = await userCollections.updateOne(query,edit,option);
+
+      res.send(result);
+      
+    })
+
+
+    app.delete('/delete/:id',async(req,res) => {
+      const id = req.params.id
+      const query = {_id : new ObjectId(id)}
+      const result = await userCollections.deleteOne(query);
+      res.send(result);
+    })
 
 
     // Send a ping to confirm a successful connection
